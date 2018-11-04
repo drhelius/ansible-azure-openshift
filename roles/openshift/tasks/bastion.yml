@@ -1,0 +1,57 @@
+---
+- name: Create Bastion public ip address
+  azure_rm_publicipaddress:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-bastion-public-ip
+    allocation_method: Static
+  register: openshift_bastion_ip_result
+
+
+- set_fact:
+    openshift_bastion_ip: "{{ openshift_bastion_ip_result.state.ip_address }}"
+
+
+- name: Create Bastion security group
+  azure_rm_securitygroup:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-bastion-security-group
+    purge_rules: yes
+    rules:
+      - name: bastion-allow-ssh
+        protocol: Tcp
+        destination_port_range: 22
+        access: Allow
+        priority: 100
+        direction: Inbound
+
+
+- name: Create Bastion network interface
+  azure_rm_networkinterface:
+    name: openshift-bastion-nic
+    resource_group: "{{ azure.resource_group }}"
+    virtual_network: openshift-virtual-network
+    subnet_name: openshift-master-subnet
+    security_group: openshift-bastion-security-group
+    ip_configurations:
+      - name: default
+        public_ip_address_name: openshift-bastion-public-ip
+        primary: True
+
+
+- name: Create Bastion vm
+  azure_rm_virtualmachine:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-bastion-vm
+    vm_size: "{{ openshift.bastion_size }}"
+    storage_account: "{{ openshift_storage_account }}"
+    admin_username: "{{ openshift.os_user }}"
+    ssh_password_enabled: false
+    ssh_public_keys:
+      - path: "/home/{{ openshift.os_user }}/.ssh/authorized_keys"
+        key_data: "{{ lookup('file', '../../certs/bastion.pub') }}"
+    network_interfaces: openshift-bastion-nic
+    image:
+      offer: "{{ azure.image_offer }}"
+      publisher: "{{ azure.image_publisher }}"
+      sku: "{{ azure.image_sku }}"
+      version: "{{ azure.image_version }}"

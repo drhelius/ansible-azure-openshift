@@ -1,0 +1,143 @@
+---
+- name: Create Masters public ip address
+  azure_rm_publicipaddress:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-master-public-ip
+    allocation_method: Static
+  register: openshift_master_ip_result
+
+
+- set_fact:
+    openshift_master_ip: "{{ openshift_master_ip_result.state.ip_address }}"
+
+
+- name: Create Masters availability set
+  azure_rm_availabilityset:
+    name: openshift-master-availability-set
+    location: "{{ azure.location }}"
+    resource_group: "{{ azure.resource_group }}"
+
+
+- name: Create Masters public load balancer
+  azure_rm_loadbalancer:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-master-public-load-balancer
+    frontend_ip_configurations:
+      - name: public
+        public_ip_address: openshift-master-public-ip
+    backend_address_pools:
+      - name: openshift-master-public-address-pool
+    probes:
+      - name: master-lb-probe-8443-up
+        port: 8443
+    load_balancing_rules:
+      - name: master-lb-public-rule-8443-8443
+        frontend_ip_configuration: public
+        backend_address_pool: openshift-master-public-address-pool
+        frontend_port: 8443
+        backend_port: 8443
+        probe: master-lb-probe-8443-up
+  register: openshift_master_public_lb_result
+
+
+- name: Create Masters private load balancer
+  azure_rm_loadbalancer:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-master-private-load-balancer
+    frontend_ip_configurations:
+      - name: private
+        subnet: "{{ openshift_master_subnet_result.state.id }}"
+    backend_address_pools:
+      - name: openshift-master-private-address-pool
+    probes:
+      - name: master-lb-probe-8443-up
+        port: 8443
+        protocol: Http
+        request_path: "/healthz"
+    load_balancing_rules:
+      - name: master-lb-private-rule-8443-8443
+        frontend_ip_configuration: private
+        backend_address_pool: openshift-master-private-address-pool
+        frontend_port: 8443
+        backend_port: 8443
+        probe: master-lb-probe-8443-up
+  register: openshift_master_private_lb_result
+
+
+- name: Create Masters security group
+  azure_rm_securitygroup:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-master-security-group
+    purge_rules: yes
+    rules:
+      - name: masters-allow-8443
+        protocol: Tcp
+        destination_port_range: 8443
+        access: Allow
+        priority: 100
+        direction: Inbound
+
+
+- name: Create Master network interface
+  azure_rm_networkinterface:
+    name: "openshift-master-nic-{{ item }}"
+    resource_group: "{{ azure.resource_group }}"
+    virtual_network: openshift-virtual-network
+    subnet_name: openshift-master-subnet
+    security_group: openshift-master-security-group
+    ip_configurations:
+      - name: default
+        load_balancer_backend_address_pools:
+          - "{{ openshift_master_public_lb_result.state.backend_address_pools[0].id }}"
+          - "{{ openshift_master_private_lb_result.state.backend_address_pools[0].id }}"
+        primary: True
+  loop: "{{ openshift.master_nodes }}"
+  async: 600
+  poll: 0
+  register: openshift_master_nic_result
+  changed_when: False
+
+
+- name: Wait for Master network interface creation
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  loop: "{{ openshift_master_nic_result.results }}"
+  register: openshift_master_nic_creation
+  until: openshift_master_nic_creation.finished
+  retries: 120
+  delay: 5
+
+
+- name: Create Master vm
+  azure_rm_virtualmachine:
+    resource_group: "{{ azure.resource_group }}"
+    name: "openshift-master-vm-{{ item }}"
+    availability_set: openshift-master-availability-set
+    vm_size: "{{ openshift.master_size }}"
+    storage_account: "{{ openshift_storage_account }}"
+    admin_username: "{{ openshift.os_user }}"
+    ssh_password_enabled: false
+    ssh_public_keys:
+      - path: "/home/{{ openshift.os_user }}/.ssh/authorized_keys"
+        key_data: "{{ lookup('file', '../../certs/openshift.pub') }}"
+    network_interfaces: "openshift-master-nic-{{ item }}"
+    image:
+      offer: "{{ azure.image_offer }}"
+      publisher: "{{ azure.image_publisher }}"
+      sku: "{{ azure.image_sku }}"
+      version: "{{ azure.image_version }}"
+  loop: "{{ openshift.master_nodes }}"
+  async: 600
+  poll: 0
+  register: openshift_master_vm_result
+  changed_when: False
+
+
+- name: Wait for Master vm creation
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  loop: "{{ openshift_master_vm_result.results }}"
+  register: openshift_master_vm_creation
+  until: openshift_master_vm_creation.finished
+  retries: 120
+  delay: 5

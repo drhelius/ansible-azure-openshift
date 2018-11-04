@@ -1,0 +1,132 @@
+---
+- name: Create Infra public ip address
+  azure_rm_publicipaddress:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-infra-public-ip
+    allocation_method: Static
+  register: openshift_infra_ip_result
+
+
+- set_fact:
+    openshift_infra_ip: "{{ openshift_infra_ip_result.state.ip_address }}"
+
+
+- name: Create Infra availability set
+  azure_rm_availabilityset:
+    name: openshift-infra-availability-set
+    location: "{{ azure.location }}"
+    resource_group: "{{ azure.resource_group }}"
+
+
+- name: Create Infra load balancer
+  azure_rm_loadbalancer:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-infra-load-balancer
+    frontend_ip_configurations:
+      - name: public
+        public_ip_address: openshift-infra-public-ip
+    backend_address_pools:
+      - name: openshift-infra-address-pool
+    probes:
+      - name: infra-lb-probe-80-up
+        port: 80
+      - name: infra-lb-probe-443-up
+        port: 443
+    load_balancing_rules:
+      - name: infra-lb-rule-80-80
+        frontend_ip_configuration: public
+        backend_address_pool: openshift-infra-address-pool
+        frontend_port: 80
+        backend_port: 80
+        probe: infra-lb-probe-443-up
+      - name: infra-lb-rule-443-443
+        frontend_ip_configuration: public
+        backend_address_pool: openshift-infra-address-pool
+        frontend_port: 443
+        backend_port: 443
+        probe: infra-lb-probe-443-up
+  register: openshift_infra_lb_result
+
+
+- name: Create Infra security group
+  azure_rm_securitygroup:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-infra-security-group
+    purge_rules: yes
+    rules:
+      - name: infra-allow-80
+        protocol: Tcp
+        destination_port_range: 80
+        access: Allow
+        priority: 100
+        direction: Inbound
+      - name: infra-allow-443
+        protocol: Tcp
+        destination_port_range: 443
+        access: Allow
+        priority: 101
+        direction: Inbound
+
+
+- name: Create Infra network interface
+  azure_rm_networkinterface:
+    name: "openshift-infra-nic-{{ item }}"
+    resource_group: "{{ azure.resource_group }}"
+    virtual_network: openshift-virtual-network
+    subnet_name: openshift-infra-subnet
+    security_group: openshift-infra-security-group
+    ip_configurations:
+      - name: default
+        load_balancer_backend_address_pools:
+          - "{{ openshift_infra_lb_result.state.backend_address_pools[0].id }}"
+        primary: True
+  loop: "{{ openshift.infra_nodes }}"
+  async: 600
+  poll: 0
+  register: openshift_infra_nic_result
+  changed_when: False
+
+
+- name: Wait for Infra network interface creation
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  loop: "{{ openshift_infra_nic_result.results }}"
+  register: openshift_infra_nic_creation
+  until: openshift_infra_nic_creation.finished
+  retries: 120
+  delay: 5
+
+
+- name: Create Infra vm
+  azure_rm_virtualmachine:
+    resource_group: "{{ azure.resource_group }}"
+    name: "openshift-infra-vm-{{ item }}"
+    availability_set: openshift-infra-availability-set
+    vm_size: "{{ openshift.infra_size }}"
+    storage_account: "{{ openshift_storage_account }}"
+    admin_username: "{{ openshift.os_user }}"
+    ssh_password_enabled: false
+    ssh_public_keys:
+      - path: "/home/{{ openshift.os_user }}/.ssh/authorized_keys"
+        key_data: "{{ lookup('file', '../../certs/openshift.pub') }}"
+    network_interfaces: "openshift-infra-nic-{{ item }}"
+    image:
+      offer: "{{ azure.image_offer }}"
+      publisher: "{{ azure.image_publisher }}"
+      sku: "{{ azure.image_sku }}"
+      version: "{{ azure.image_version }}"
+  loop: "{{ openshift.infra_nodes }}"
+  async: 600
+  poll: 0
+  register: openshift_infra_vm_result
+  changed_when: False
+
+
+- name: Wait for Infra vm creation
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  loop: "{{ openshift_infra_vm_result.results }}"
+  register: openshift_infra_vm_creation
+  until: openshift_infra_vm_creation.finished
+  retries: 120
+  delay: 5

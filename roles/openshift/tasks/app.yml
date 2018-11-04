@@ -1,0 +1,59 @@
+---
+- name: Create App network interface
+  azure_rm_networkinterface:
+    name: "openshift-app-nic-{{ item }}"
+    resource_group: "{{ azure.resource_group }}"
+    virtual_network: openshift-virtual-network
+    subnet_name: openshift-app-subnet
+    ip_configurations:
+      - name: default
+        primary: True
+  loop: "{{ openshift.app_nodes }}"
+  async: 600
+  poll: 0
+  register: openshift_app_nic_result
+  changed_when: False
+
+
+- name: Wait for App network interface creation
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  loop: "{{ openshift_app_nic_result.results }}"
+  register: openshift_app_nic_creation
+  until: openshift_app_nic_creation.finished
+  retries: 120
+  delay: 5
+
+
+- name: Create App vm
+  azure_rm_virtualmachine:
+    resource_group: "{{ azure.resource_group }}"
+    name: "openshift-app-vm-{{ item }}"
+    vm_size: "{{ openshift.app_size }}"
+    storage_account: "{{ openshift_storage_account }}"
+    admin_username: "{{ openshift.os_user }}"
+    ssh_password_enabled: false
+    ssh_public_keys:
+      - path: "/home/{{ openshift.os_user }}/.ssh/authorized_keys"
+        key_data: "{{ lookup('file', '../../certs/openshift.pub') }}"
+    network_interfaces: "openshift-app-nic-{{ item }}"
+    image:
+      offer: "{{ azure.image_offer }}"
+      publisher: "{{ azure.image_publisher }}"
+      sku: "{{ azure.image_sku }}"
+      version: "{{ azure.image_version }}"
+  loop: "{{ openshift.app_nodes }}"
+  async: 600
+  poll: 0
+  register: openshift_app_vm_result
+  changed_when: False
+
+
+- name: Wait for App vm creation
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  loop: "{{ openshift_app_vm_result.results }}"
+  register: openshift_app_vm_creation
+  until: openshift_app_vm_creation.finished
+  retries: 120
+  delay: 5

@@ -1,0 +1,8 @@
+---
+- import_tasks: resource_group.yml
+- import_tasks: networks.yml
+- import_tasks: storage.yml
+- import_tasks: bastion.yml
+- import_tasks: masters.yml
+- import_tasks: infra.yml
+- import_tasks: app.yml

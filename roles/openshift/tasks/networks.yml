@@ -1,0 +1,38 @@
+---
+- name: Create main virtual network
+  azure_rm_virtualnetwork:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-virtual-network
+    address_prefixes: "10.0.0.0/16"
+
+
+- name: Create Masters subnet
+  azure_rm_subnet:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-master-subnet
+    address_prefix: "10.0.1.0/24"
+    virtual_network: openshift-virtual-network
+  register: openshift_master_subnet_result
+
+
+- name: Create Infra subnet
+  azure_rm_subnet:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-infra-subnet
+    address_prefix: "10.0.2.0/24"
+    virtual_network: openshift-virtual-network
+
+
+- name: Create Apps subnet
+  azure_rm_subnet:
+    resource_group: "{{ azure.resource_group }}"
+    name: openshift-app-subnet
+    address_prefix: "10.0.3.0/24"
+    virtual_network: openshift-virtual-network
+
+
+# - name: Create private DNS zone
+#   azure_rm_dnszone:
+#     resource_group: "{{ azure.resource_group }}"
+#     name: openshift.local
+#     state: present

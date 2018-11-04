@@ -1,0 +1,23 @@
+azure:
+  location: "East US"
+  resource_group: "openshift"
+  image_publisher: "OpenLogic"
+  image_offer: "CentOS"
+  image_sku: "7.5"
+  image_version: "latest"
+
+openshift:
+  master_nodes: [1,2,3]
+  #master_size: "Standard_B2s"
+  master_size: "Standard_B1s"
+  infra_nodes: [1,2]
+  #infra_size: "Standard_B2ms"
+  infra_size: "Standard_B1s"
+  app_nodes: [1,2]
+  #app_size: "Standard_B2s"
+  app_size: "Standard_B1s"
+  #bastion_size: "Standard_B2ms"
+  bastion_size: "Standard_B1s"
+  os_user: "openshift"
+  admin_domain: "ocp.mydomain.com"
+  router_domain: "mydomain.com"
