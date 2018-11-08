@@ -15,5 +15,5 @@ openshift:
   app_size: "Standard_B2s"
   bastion_size: "Standard_B2ms"
   os_user: "openshift"
-  admin_domain: "ocp-adm.duckdns.org"
-  router_domain: "ocp.duckdns.org"
+  admin_domain: "ocp-adm.mydomain.com"
+  router_domain: "ocp.mydomain.com"

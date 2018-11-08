@@ -10,7 +10,30 @@ Follow me on Twitter for updates: http://twitter.com/drhelius
 Bootstraping
 ------------
 ### Setup
-...
+
+You can tweak all the variables in ```configuration.yml```:
+
+```
+azure:
+  location: "East US"
+  resource_group: "openshift6"
+  image_publisher: "OpenLogic"
+  image_offer: "CentOS"
+  image_sku: "7.5"
+  image_version: "latest"
+
+openshift:
+  master_nodes: [1,2,3]
+  master_size: "Standard_B2s"
+  infra_nodes: [1,2,3]
+  infra_size: "Standard_B2ms"
+  app_nodes: [1,2,3]
+  app_size: "Standard_B2s"
+  bastion_size: "Standard_B2ms"
+  os_user: "openshift"
+  admin_domain: "ocp-adm.mydomain.com"
+  router_domain: "ocp.mydomain.com"
+```
 
 ### Bootstrap
 
@@ -23,7 +46,7 @@ When finished, you will get the public IPs for the Bastion host and for both the
 
 In order to SSH into the Bastion host use the key in the ```certs``` folder:
 ```
-ssh -i certs/bastion.key cloud-user@BASTION_IP
+ssh -i certs/bastion.key OS_USER@BASTION_IP
 ```
 
 The ```oc``` command is configured to be used in the Bastion host.
