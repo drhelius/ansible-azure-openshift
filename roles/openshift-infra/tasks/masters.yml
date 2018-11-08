@@ -51,30 +51,6 @@
       - entry: "{{ openshift_master_ip }}"
 
 
-- name: Create Masters private load balancer
-  azure_rm_loadbalancer:
-    resource_group: "{{ azure.resource_group }}"
-    name: openshift-master-private-load-balancer
-    frontend_ip_configurations:
-      - name: private
-        private_ip_allocation_method: Static
-        private_ip_address: 10.0.1.250
-        subnet: "{{ openshift_master_subnet_result.state.id }}"
-    backend_address_pools:
-      - name: openshift-master-private-address-pool
-    probes:
-      - name: master-lb-private-probe-8443-up
-        port: 8443
-    load_balancing_rules:
-      - name: master-lb-private-rule-8443-8443
-        frontend_ip_configuration: private
-        backend_address_pool: openshift-master-private-address-pool
-        frontend_port: 8443
-        backend_port: 8443
-        probe: master-lb-private-probe-8443-up
-  register: openshift_master_private_lb_result
-
-
 - name: Create Masters security group
   azure_rm_securitygroup:
     resource_group: "{{ azure.resource_group }}"
@@ -100,7 +76,6 @@
       - name: default
         load_balancer_backend_address_pools:
           - "{{ openshift_master_public_lb_result.state.backend_address_pools[0].id }}"
-          - "{{ openshift_master_private_lb_result.state.backend_address_pools[0].id }}"
         primary: True
   loop: "{{ openshift.master_nodes }}"
   async: 600
