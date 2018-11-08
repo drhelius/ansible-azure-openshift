@@ -1,0 +1,6 @@
+---
+- local_action: copy content={{ openshift_bastion_ip }} dest=openshift_bastion_ip.out
+- local_action: copy content={{ openshift_master_ip }} dest=openshift_master_ip.out
+- local_action: copy content={{ openshift_infra_ip }} dest=openshift_infra_ip.out
+- local_action: copy content={{ openshift.admin_domain }} dest=openshift_admin_domain.out
+- local_action: copy content={{ openshift.os_user }} dest=openshift_os_user.out

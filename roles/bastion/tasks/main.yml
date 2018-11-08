@@ -1,0 +1,118 @@
+---
+- name: Ensure required repos are enabled
+  become: True
+  yum:
+    name:
+      - epel-release
+      - centos-release-openshift-origin
+    state: present
+
+# - name: Ensure system is updated
+#   become: True
+#   yum:
+#     name: '*'
+#     state: latest
+#     update_cache: yes
+#     exclude:
+#       - ansible
+#   register: update_system
+#
+# - name: Reboot if state changed
+#   become: True
+#   shell: sleep 2 && shutdown -r now 'System update reboot'
+#   async: 1
+#   poll: 0
+#   ignore_errors: true
+#   when: update_system.changed
+#
+# - name: Waiting for hosts to be available
+#   become: True
+#   wait_for:
+#     host: '{{ item }}'
+#     port: 22
+#     state: started
+#     delay: 10
+#     timeout: 300
+#   with_items: '{{ play_hosts }}'
+#   connection: local
+#   when: update_system.changed
+
+- name: Ensure required packages are installed
+  become: True
+  yum:
+    name: "{{ yum_packages }}"
+    state: present
+
+- name: Install Ansible 2.6
+  become: True
+  pip:
+    name: ansible
+    version: 2.6.7
+
+- name: Ensure SSH directory exists
+  file:
+    path: ".ssh"
+    state: directory
+
+- name: Ensure SSH certs are on place
+  copy:
+    src: "../../certs/openshift.key"
+    dest: ".ssh/id_rsa"
+    mode: 0600
+
+- name: Ensure working directory exists
+  file:
+    path: "openshift"
+    state: directory
+
+- name: Copy host-preparation role
+  copy:
+    src: "../host-preparation"
+    dest: "openshift/host-preparation/roles"
+
+- name: Copy host-preparation playbook
+  copy:
+    src: "../../host-preparation.yml"
+    dest: "openshift/host-preparation"
+
+- name: Copy ansible.cfg for host-preparation
+  copy:
+    src: "../../ansible.cfg"
+    dest: "openshift/host-preparation"
+
+- name: Copy configuration.yml
+  copy:
+    src: "../../configuration.yml"
+    dest: "openshift"
+
+- name: Ensure inventories directory exists
+  file:
+    path: "openshift/inventories"
+    state: directory
+
+- name: Copy host preparation inventory
+  template:
+    src: "templates/host-preparation-inventory.j2"
+    dest: "openshift/inventories/host-preparation"
+
+- name: Copy OpenShift inventory
+  template:
+    src: "templates/openshift-inventory.j2"
+    dest: "openshift/inventories/openshift"
+
+- name: Check if OpenShift installer is already cloned
+  stat:
+    path: "openshift/openshift-ansible"
+  register: stat_result
+
+- name: Clone OpenShift Ansible installer
+  shell: "git clone https://github.com/openshift/openshift-ansible"
+  args:
+    chdir: "openshift"
+  when: not stat_result.stat.exists
+
+- name: Get latest updates from Ansible installer
+  shell: "git checkout release-3.9; git pull"
+  args:
+    chdir: "openshift/openshift-ansible"
+  changed_when: false

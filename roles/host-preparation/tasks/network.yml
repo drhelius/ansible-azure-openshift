@@ -1,0 +1,7 @@
+---
+- name: Ensure network interface is managed by NetworkManager
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0
+    regexp: '^NM_CONTROLLED='
+    line: 'NM_CONTROLLED=yes'
+  notify: Ensure network service is restarted

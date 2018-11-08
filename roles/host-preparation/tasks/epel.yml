@@ -1,0 +1,11 @@
+---
+- name: Install EPEL repo
+  yum:
+    name: "epel-release"
+    state: present
+
+- name: Disable EPEL repo globally
+  replace:
+    path: "{{ epel_repofile_path }}"
+    regexp: "^enabled=1"
+    replace: "enabled=0"

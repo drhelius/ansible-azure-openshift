@@ -101,6 +101,7 @@
   azure_rm_virtualmachine:
     resource_group: "{{ azure.resource_group }}"
     name: "openshift-infra-vm-{{ item }}"
+    short_hostname: "infra{{ item }}"
     availability_set: openshift-infra-availability-set
     vm_size: "{{ openshift.infra_size }}"
     storage_account: "{{ openshift_storage_account }}"

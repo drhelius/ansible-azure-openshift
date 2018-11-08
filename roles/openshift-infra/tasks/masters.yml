@@ -28,7 +28,7 @@
     backend_address_pools:
       - name: openshift-master-public-address-pool
     probes:
-      - name: master-lb-probe-8443-up
+      - name: master-lb-public-probe-8443-up
         port: 8443
     load_balancing_rules:
       - name: master-lb-public-rule-8443-8443
@@ -36,8 +36,19 @@
         backend_address_pool: openshift-master-public-address-pool
         frontend_port: 8443
         backend_port: 8443
-        probe: master-lb-probe-8443-up
+        probe: master-lb-public-probe-8443-up
   register: openshift_master_public_lb_result
+
+
+- name: Create DNS entry for private Masters load balancer
+  azure_rm_dnsrecordset:
+    resource_group:  "{{ azure.resource_group }}"
+    zone_name: openshift.local
+    record_type: A
+    relative_name: master-private-lb
+    state: present
+    records:
+      - entry: "{{ openshift_master_ip }}"
 
 
 - name: Create Masters private load balancer
@@ -46,21 +57,21 @@
     name: openshift-master-private-load-balancer
     frontend_ip_configurations:
       - name: private
+        private_ip_allocation_method: Static
+        private_ip_address: 10.0.1.250
         subnet: "{{ openshift_master_subnet_result.state.id }}"
     backend_address_pools:
       - name: openshift-master-private-address-pool
     probes:
-      - name: master-lb-probe-8443-up
+      - name: master-lb-private-probe-8443-up
         port: 8443
-        protocol: Http
-        request_path: "/healthz"
     load_balancing_rules:
       - name: master-lb-private-rule-8443-8443
         frontend_ip_configuration: private
         backend_address_pool: openshift-master-private-address-pool
         frontend_port: 8443
         backend_port: 8443
-        probe: master-lb-probe-8443-up
+        probe: master-lb-private-probe-8443-up
   register: openshift_master_private_lb_result
 
 
@@ -112,6 +123,7 @@
   azure_rm_virtualmachine:
     resource_group: "{{ azure.resource_group }}"
     name: "openshift-master-vm-{{ item }}"
+    short_hostname: "master{{ item }}"
     availability_set: openshift-master-availability-set
     vm_size: "{{ openshift.master_size }}"
     storage_account: "{{ openshift_storage_account }}"

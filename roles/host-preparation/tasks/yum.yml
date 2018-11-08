@@ -1,0 +1,6 @@
+---
+- name: Ensure all required packages are installed
+  yum:
+    name: "{{ yum_packages }}"
+    state: present
+    enablerepo: "epel"

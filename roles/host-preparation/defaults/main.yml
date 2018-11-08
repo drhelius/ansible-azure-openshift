@@ -1,0 +1,22 @@
+---
+epel_repofile_path: "/etc/yum.repos.d/epel.repo"
+
+yum_packages:
+  - wget
+  - git
+  - net-tools
+  - bind-utils
+  - yum-utils
+  - iptables-services
+  - bridge-utils
+  - bash-completion
+  - kexec-tools
+  - sos
+  - psacct
+  - unzip
+  - python-pip
+  - pyOpenSSL
+  - at
+  - deltarpm
+  - tmux
+  - vim

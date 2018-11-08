@@ -1,0 +1,4 @@
+---
+- hosts: openshift-bastion-vm
+  roles:
+    - bastion

@@ -2,7 +2,7 @@
 - name: Create storage account
   azure_rm_storageaccount:
     resource_group: "{{ azure.resource_group }}"
-    name: "{{ 'openshift' + 1000000 | random(seed=azure.resource_group) | to_uuid | replace('-', '') | truncate(9, True, '') }}"
+    name: "{{ 'openshift' + 1000000 | random(seed=azure.resource_group) | to_uuid | replace('-', '') | truncate(10, True, '') }}"
     type: Standard_LRS
   register: openshift_storage_account_result
 

@@ -1,0 +1,8 @@
+[masters]
+master[1:{{ openshift.master_nodes | length }}].openshift.local ansible_user={{ openshift.os_user }}
+
+[infra]
+infra[1:{{ openshift.infra_nodes | length }}].openshift.local ansible_user={{ openshift.os_user }}
+
+[app]
+app[1:{{ openshift.app_nodes | length }}].openshift.local ansible_user={{ openshift.os_user }}

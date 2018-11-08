@@ -29,6 +29,7 @@
   azure_rm_virtualmachine:
     resource_group: "{{ azure.resource_group }}"
     name: "openshift-app-vm-{{ item }}"
+    short_hostname: "app{{ item }}"
     vm_size: "{{ openshift.app_size }}"
     storage_account: "{{ openshift_storage_account }}"
     admin_username: "{{ openshift.os_user }}"

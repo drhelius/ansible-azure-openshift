@@ -31,8 +31,6 @@
     virtual_network: openshift-virtual-network
 
 
-# - name: Create private DNS zone
-#   azure_rm_dnszone:
-#     resource_group: "{{ azure.resource_group }}"
-#     name: openshift.local
-#     state: present
+- name: Create private DNS (tech preview)
+  shell: "az network dns zone create -g {{ azure.resource_group }} -n openshift.local --zone-type Private --registration-vnets openshift-virtual-network"
+  changed_when: False

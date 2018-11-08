@@ -42,6 +42,7 @@
   azure_rm_virtualmachine:
     resource_group: "{{ azure.resource_group }}"
     name: openshift-bastion-vm
+    short_hostname: bastion
     vm_size: "{{ openshift.bastion_size }}"
     storage_account: "{{ openshift_storage_account }}"
     admin_username: "{{ openshift.os_user }}"

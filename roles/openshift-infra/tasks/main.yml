@@ -6,3 +6,4 @@
 - import_tasks: masters.yml
 - import_tasks: infra.yml
 - import_tasks: app.yml
+- import_tasks: output.yml
