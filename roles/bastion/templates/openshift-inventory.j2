@@ -32,19 +32,19 @@ openshift_hosted_infra_selector='role=infra'
 openshift_router_selector='role=infra'
 openshift_registry_selector='role=infra'
 
-openshift_metrics_install_metrics=true
+openshift_metrics_install_metrics=false
 openshift_metrics_cassandra_nodeselector={"role":"infra"}
 openshift_metrics_heapster_nodeselector={"role":"infra"}
 openshift_metrics_hawkular_nodeselector={"role":"infra"}
 
-openshift_logging_install_logging=true
+openshift_logging_install_logging=false
 openshift_logging_kibana_nodeselector={"role":"infra"}
 openshift_logging_fluentd_nodeselector={"logging":"true"}
 openshift_logging_curator_nodeselector={"role":"infra"}
 openshift_logging_es_nodeselector={"role":"infra"}
 
-openshift_enable_service_catalog=true
-template_service_broker_install=true
+openshift_enable_service_catalog=false
+template_service_broker_install=false
 ansible_service_broker_install=false
 template_service_broker_selector={"role":"infra"}
 
