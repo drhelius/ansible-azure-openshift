@@ -16,7 +16,7 @@ You can tweak all the variables in ```configuration.yml```:
 ```
 azure:
   location: "East US"
-  resource_group: "openshift6"
+  resource_group: "openshift"
   image_publisher: "OpenLogic"
   image_offer: "CentOS"
   image_sku: "7.5"
