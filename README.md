@@ -48,7 +48,7 @@ To launch the automation simply run:
 
 When finished, you will get public IPs for Bastion host and for both Master and Router Load Balancers.
 
-Set up public DNS entries with these Load Balancers IPs for your previously defined domains. You may wnat to use a service like [Duck DNS](https://www.duckdns.org) for testing purposes.
+Set up public DNS entries with these Load Balancers IPs for your previously defined domains. You may want to use a service like [Duck DNS](https://www.duckdns.org) for testing purposes.
 
 SSH into the Bastion host using the key in the ```certs``` folder:
 ```
