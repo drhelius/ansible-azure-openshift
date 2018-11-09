@@ -3,9 +3,9 @@
   include_tasks: epel.yml
   tags: epel_repo
 
-# - name: Update all packages and reboot
-#   include_tasks: update.yml
-#   tags: update
+- name: Update all packages and reboot
+  include_tasks: update.yml
+  tags: update
 
 - name: Ensure required packages are installed
   include_tasks: yum.yml

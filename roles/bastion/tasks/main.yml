@@ -7,35 +7,35 @@
       - centos-release-openshift-origin
     state: present
 
-# - name: Ensure system is updated
-#   become: True
-#   yum:
-#     name: '*'
-#     state: latest
-#     update_cache: yes
-#     exclude:
-#       - ansible
-#   register: update_system
-#
-# - name: Reboot if state changed
-#   become: True
-#   shell: sleep 2 && shutdown -r now 'System update reboot'
-#   async: 1
-#   poll: 0
-#   ignore_errors: true
-#   when: update_system.changed
-#
-# - name: Waiting for hosts to be available
-#   become: True
-#   wait_for:
-#     host: '{{ item }}'
-#     port: 22
-#     state: started
-#     delay: 10
-#     timeout: 300
-#   with_items: '{{ play_hosts }}'
-#   connection: local
-#   when: update_system.changed
+- name: Ensure system is updated
+  become: True
+  yum:
+    name: '*'
+    state: latest
+    update_cache: yes
+    exclude:
+      - ansible
+  register: update_system
+
+- name: Reboot if state changed
+  become: True
+  shell: sleep 2 && shutdown -r now 'System update reboot'
+  async: 1
+  poll: 0
+  ignore_errors: true
+  when: update_system.changed
+
+- name: Waiting for hosts to be available
+  become: True
+  wait_for:
+    host: '{{ item }}'
+    port: 22
+    state: started
+    delay: 10
+    timeout: 300
+  with_items: '{{ play_hosts }}'
+  connection: local
+  when: update_system.changed
 
 - name: Ensure required packages are installed
   become: True
