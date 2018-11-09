@@ -26,7 +26,6 @@
   when: update_system.changed
 
 - name: Waiting for hosts to be available
-  become: True
   wait_for:
     host: '{{ item }}'
     port: 22
