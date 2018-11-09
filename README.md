@@ -11,7 +11,7 @@ Bootstraping
 ------------
 ### Setup
 
-You can tweak all the variables in [configuration.yml](configuration.yml), including the domains where OCP will be accesible:
+Tweak all the variables in [configuration.yml](configuration.yml) to your liking, including the public domains where OCP will be accesible:
 
 ```
 azure:
@@ -35,7 +35,7 @@ openshift:
   router_domain: "ocp.mydomain.com"
 ```
 
-If you want to tweak OpenShift installation you can do so using the [inventory template](roles/bastion/templates/openshift-inventory.j2).
+Customize OpenShift installation by tweaking the [OCP inventory template](roles/bastion/templates/openshift-inventory.j2).
 
 Two [certificate pairs](certs/) are provided for both Bastion and OCP hosts. You can replace any of them with a new generated pair, keeping the same file names.
 
@@ -46,11 +46,11 @@ To launch the automation simply run:
 ./bootstrap.sh
 ```
 
-When finished, you will get the public IPs for the Bastion host and for both the External and the Router Load Balancers.
+When finished, you will get public IPs for Bastion host and for both Master and Router Load Balancers.
 
-Set up public DNS entries with these Load Balancers IPs for your previously defined domains. For testing you can use a service like [Duck DNS](https://www.duckdns.org)
+Set up public DNS entries with these Load Balancers IPs for your previously defined domains. You may wnat to use a service like [Duck DNS](https://www.duckdns.org) for testing purposes.
 
-In order to SSH into the Bastion host use the key in the ```certs``` folder:
+SSH into the Bastion host using the key in the ```certs``` folder:
 ```
 ssh -i certs/bastion.key OS_USER@BASTION_IP
 ```
