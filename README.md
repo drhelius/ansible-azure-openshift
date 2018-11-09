@@ -11,7 +11,7 @@ Bootstraping
 ------------
 ### Setup
 
-Tweak all the variables in [configuration.yml](configuration.yml) to your liking, including the public domains where OCP will be accesible:
+Tune all the variables in [configuration.yml](configuration.yml) to your liking, including the public domains where OCP will be accesible:
 
 ```
 azure:
@@ -46,18 +46,18 @@ To launch the automation simply run:
 ./bootstrap.sh
 ```
 
-When finished, you will get public IPs for Bastion host and for both Master and Router Load Balancers.
+When finished, you will get public IPs for Bastion host and for both Master and Router load balancers.
 
 Set up public DNS entries with these Load Balancers IPs for your previously defined domains. You may want to use a service like [Duck DNS](https://www.duckdns.org) for testing purposes.
 
-SSH into the Bastion host using the key in the ```certs``` folder:
+SSH into Bastion host using the key in the ```certs``` folder:
 ```
 ssh -i certs/bastion.key OS_USER@BASTION_IP
 ```
 
-The ```oc``` command is installed and configured so you can used it directly within Bastion host.
+The ```oc``` command is installed and configured so you can use it directly within Bastion host.
 
-If something failed during the installation you can run ```bootstrap.sh``` again.
+If something fails during installation you can run ```bootstrap.sh``` again.
 
 License
 -------
