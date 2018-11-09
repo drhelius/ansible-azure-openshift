@@ -9,9 +9,9 @@ azure:
 openshift:
   master_nodes: [1,2,3]
   master_size: "Standard_B2s"
-  infra_nodes: [1,2]
+  infra_nodes: [1,2,3]
   infra_size: "Standard_B2ms"
-  app_nodes: [1,2]
+  app_nodes: [1,2,3]
   app_size: "Standard_B2s"
   bastion_size: "Standard_B2ms"
   os_user: "openshift"

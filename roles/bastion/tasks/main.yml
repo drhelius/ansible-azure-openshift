@@ -18,22 +18,7 @@
   register: update_system
 
 - name: Reboot if state changed
-  become: True
-  shell: sleep 2 && shutdown -r now 'System update reboot'
-  async: 1
-  poll: 0
-  ignore_errors: true
-  when: update_system.changed
-
-- name: Waiting for hosts to be available
-  wait_for:
-    host: '{{ item }}'
-    port: 22
-    state: started
-    delay: 10
-    timeout: 300
-  with_items: '{{ play_hosts }}'
-  connection: local
+  reboot:
   when: update_system.changed
 
 - name: Ensure required packages are installed
@@ -111,7 +96,7 @@
   when: not stat_result.stat.exists
 
 - name: Get latest updates from Ansible installer
-  shell: "git checkout release-3.9; git pull"
+  shell: "git checkout release-3.11; git pull"
   args:
     chdir: "openshift/openshift-ansible"
   changed_when: false
