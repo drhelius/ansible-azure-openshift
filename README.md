@@ -39,6 +39,8 @@ Customize OpenShift installation by tweaking the [OCP inventory template](roles/
 
 Two [certificate pairs](certs/) are provided for both Bastion and OCP hosts. You can replace any of them with a new generated pair, keeping the same file names.
 
+Don't forget to [set up Azure credentials](https://docs.ansible.com/ansible/latest/scenario_guides/guide_azure.html#authenticating-with-azure), using a Service Principal is recommended.
+
 ### Bootstrap
 
 To launch the automation simply run:
