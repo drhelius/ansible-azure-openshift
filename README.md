@@ -65,7 +65,7 @@ License
 -------
 MIT License
 
-Copyright (c) 2017 Ignacio Sanchez Gines
+Copyright (c) 2018 Ignacio Sanchez Gines
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
