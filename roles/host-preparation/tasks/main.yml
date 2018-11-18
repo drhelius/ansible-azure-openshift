@@ -15,6 +15,6 @@
   include_tasks: docker.yml
   tags: docker
 
-- name: Ensure Docker is properly installed
+- name: Ensure Network is properly configured
   include_tasks: network.yml
   tags: network
