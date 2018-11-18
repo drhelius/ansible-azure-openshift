@@ -1,4 +1,6 @@
 ---
+epel_repofile_path: "/etc/yum.repos.d/epel.repo"
+
 yum_packages:
   - pyOpenSSL
   - wget

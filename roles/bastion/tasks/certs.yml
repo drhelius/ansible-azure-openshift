@@ -1,0 +1,11 @@
+---
+- name: Ensure SSH directory exists
+  file:
+    path: ".ssh"
+    state: directory
+
+- name: Ensure SSH certs are on place
+  copy:
+    src: "../../certs/openshift.key"
+    dest: ".ssh/id_rsa"
+    mode: 0600

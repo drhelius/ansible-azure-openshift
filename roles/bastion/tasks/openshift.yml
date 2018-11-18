@@ -1,0 +1,57 @@
+---
+- name: Ensure working directory exists
+  file:
+    path: "openshift"
+    state: directory
+
+- name: Copy host-preparation role
+  copy:
+    src: "../host-preparation"
+    dest: "openshift/host-preparation/roles"
+
+- name: Copy host-preparation playbook
+  copy:
+    src: "../../host-preparation.yml"
+    dest: "openshift/host-preparation"
+
+- name: Copy ansible.cfg for host-preparation
+  copy:
+    src: "../../ansible.cfg"
+    dest: "openshift/host-preparation"
+
+- name: Copy configuration.yml
+  copy:
+    src: "../../configuration.yml"
+    dest: "openshift"
+
+- name: Ensure inventories directory exists
+  file:
+    path: "openshift/inventories"
+    state: directory
+
+- name: Copy host preparation inventory
+  template:
+    src: "templates/host-preparation-inventory.j2"
+    dest: "openshift/inventories/host-preparation"
+
+- name: Copy OpenShift inventory
+  template:
+    src: "templates/openshift-inventory.j2"
+    dest: "openshift/inventories/openshift"
+
+- name: Check if OpenShift installer is already cloned
+  stat:
+    path: "openshift/openshift-ansible"
+  register: stat_result
+
+- name: Clone OpenShift Ansible installer
+  shell: "git clone https://github.com/openshift/openshift-ansible"
+  args:
+    chdir: "openshift"
+  when: not stat_result.stat.exists
+
+- name: Get latest updates from Ansible installer
+  shell: "git checkout release-3.11; git pull"
+  args:
+    chdir: "openshift/openshift-ansible"
+  changed_when: false

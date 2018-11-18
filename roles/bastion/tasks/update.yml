@@ -1,0 +1,16 @@
+---
+- name: Ensure system is updated
+  become: True
+  yum:
+    name: '*'
+    state: latest
+    update_cache: yes
+    enablerepo: "epel"
+    exclude:
+      - ansible
+  register: update_system
+
+- name: Reboot if state changed
+  become: True
+  reboot:
+  when: update_system.changed

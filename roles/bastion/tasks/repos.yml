@@ -1,0 +1,15 @@
+---
+- name: Ensure required repos are enabled
+  become: True
+  yum:
+    name:
+      - epel-release
+      - centos-release-openshift-origin
+    state: present
+
+- name: Disable EPEL repo globally
+  become: True
+  replace:
+    path: "{{ epel_repofile_path }}"
+    regexp: "^enabled=1"
+    replace: "enabled=0"

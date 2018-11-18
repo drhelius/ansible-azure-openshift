@@ -1,0 +1,13 @@
+---
+- name: Ensure required packages are installed
+  become: True
+  yum:
+    name: "{{ yum_packages }}"
+    state: present
+    enablerepo: "epel"
+
+- name: Install Ansible 2.6
+  become: True
+  pip:
+    name: ansible
+    version: 2.6.7
