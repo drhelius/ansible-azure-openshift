@@ -8,8 +8,8 @@
   tags: update
 
 - name: Ensure required packages are installed
-  include_tasks: yum.yml
-  tags: yum
+  include_tasks: packages.yml
+  tags: packages
 
 - name: Ensure Docker is properly installed
   include_tasks: docker.yml
