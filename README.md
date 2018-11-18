@@ -11,7 +11,7 @@ Bootstraping
 ------------
 ### Setup
 
-Tweak all the variables in [configuration.yml](configuration.yml) to your liking, including the public domains where OCP will be accesible:
+Tune all the variables in [configuration.yml](configuration.yml) to your liking, including the public domains where OCP will be accesible:
 
 ```
 azure:
@@ -39,6 +39,8 @@ Customize OpenShift installation by tweaking the [OCP inventory template](roles/
 
 Two [certificate pairs](certs/) are provided for both Bastion and OCP hosts. You can replace any of them with a new generated pair, keeping the same file names.
 
+Don't forget to set up [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest), [Ansible dependencies](https://docs.ansible.com/ansible/latest/scenario_guides/guide_azure.html#requirements) and [Azure credentials](https://docs.ansible.com/ansible/latest/scenario_guides/guide_azure.html#authenticating-with-azure) in the host where you are running this automation. Using a Service Principal is recommended.
+
 ### Bootstrap
 
 To launch the automation simply run:
@@ -46,24 +48,24 @@ To launch the automation simply run:
 ./bootstrap.sh
 ```
 
-When finished, you will get public IPs for Bastion host and for both Master and Router Load Balancers.
+When finished, you will get public IPs for Bastion host and for both Master and Router load balancers.
 
 Set up public DNS entries with these Load Balancers IPs for your previously defined domains. You may want to use a service like [Duck DNS](https://www.duckdns.org) for testing purposes.
 
-SSH into the Bastion host using the key in the ```certs``` folder:
+SSH into Bastion host using the key in the ```certs``` folder:
 ```
 ssh -i certs/bastion.key OS_USER@BASTION_IP
 ```
 
-The ```oc``` command is installed and configured so you can used it directly within Bastion host.
+The ```oc``` command is installed and configured so you can use it directly within Bastion host.
 
-If something failed during the installation you can run ```bootstrap.sh``` again.
+If something fails during installation you can run ```bootstrap.sh``` again.
 
 License
 -------
 MIT License
 
-Copyright (c) 2017 Ignacio Sanchez Gines
+Copyright (c) 2018 Ignacio Sanchez Gines
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
