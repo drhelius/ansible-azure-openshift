@@ -5,7 +5,8 @@ echo "-----------------------------------------"
 echo "Deploying infrastructure..."
 echo "-----------------------------------------"
 
-ansible-playbook -e @configuration.yml openshift-infra.yml
+ansible-playbook -i ,localhost -e @configuration.yml openshift-infra.yml
+
 
 echo "-----------------------------------------"
 echo "Getting output variables..."
