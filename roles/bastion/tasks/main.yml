@@ -18,6 +18,7 @@
   register: update_system
 
 - name: Reboot if state changed
+  become: True
   reboot:
   when: update_system.changed
 
