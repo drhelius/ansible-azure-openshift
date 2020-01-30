@@ -42,6 +42,8 @@ echo "-----------------------------------------"
 echo "Running OpenShift installation..."
 echo "-----------------------------------------"
 
+set +e
+
 $BASTION_SSH_COMMAND "cd openshift/openshift-ansible; ansible-playbook -i ../inventories/openshift playbooks/deploy_cluster.yml"
 
 echo "-----------------------------------------"
