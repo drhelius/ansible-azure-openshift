@@ -18,6 +18,10 @@ MASTER_IP=$(cat openshift_master_ip.out)
 MASTER_DOMAIN=$(cat openshift_admin_domain.out)
 ADMIN_USER=$(cat openshift_os_user.out)
 
+echo "Master Load Balancer: $MASTER_IP"
+echo "Router Load Balancer: $ROUTER_IP"
+echo "Bastion: $BASTION_IP"
+
 echo "-----------------------------------------"
 echo "Setting up bastion server..."
 echo "-----------------------------------------"
